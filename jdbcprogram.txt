@@ -1,0 +1,229 @@
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.Statement;
+import java.util.Scanner;
+
+
+
+
+class DataOperation
+{
+	Scanner scan=new Scanner(System.in);
+	
+	
+	void show()
+	{
+		try
+		{
+			Class.forName("com.mysql.jdbc.Driver");
+			Connection con=DriverManager.getConnection("jdbc:mysql://localhost/gtukb","root","");
+			
+			Statement st=con.createStatement();
+			
+			ResultSet rs=st.executeQuery("select * from mytab");
+			
+			ResultSetMetaData rsm=rs.getMetaData();
+			
+			System.out.println("\n TABLE : "+rsm.getTableName(1));
+			
+			System.out.println(" COLUMN : "+rsm.getColumnCount());
+			
+			for(int i=1;i<=rsm.getColumnCount();i++)
+			{
+				System.out.println(" "+rsm.getColumnName(i)+"   : " +rsm.getColumnTypeName(i));
+			}
+			
+			
+			while(rs.next())
+			{
+				int a=rs.getInt("sid");
+				String b=rs.getString("sna");
+				int c=rs.getInt("sag");
+				System.out.println(" "+a+"  , "+b+"  ,  "+c);
+			}
+			
+			rs.close();
+			st.close();
+			con.close();
+		}
+		catch(Exception e)
+		{
+			System.out.println("\n SHOW ERROR : "+e.getMessage());
+		}
+		
+	}
+	void insert()
+	{
+		
+		try
+		{
+			Class.forName("com.mysql.jdbc.Driver");
+			Connection con=DriverManager.getConnection("jdbc:mysql://localhost/gtukb","root","");
+			
+			Statement st=con.createStatement();
+			
+			System.out.print("\n  ENTER ID - NAME - AGE : ");
+			int id=scan.nextInt();
+			String name=scan.next();
+			int age=scan.nextInt();
+			
+			st.executeUpdate("insert into mytab value("+id+",'"+name+"',"+age+")");
+			
+			st.close();
+			con.close();
+		}
+		catch(Exception e)
+		{
+			System.out.println("\n INSERT ERROR : "+e.getMessage());
+		}
+		
+		
+	}
+	
+	void delete()
+	{
+		
+	}
+	void update()
+	{
+		
+	}
+	
+	void updatable()
+	{
+		try
+		{
+			Class.forName("com.mysql.jdbc.Driver");
+			Connection con=DriverManager.getConnection("jdbc:mysql://localhost/gtukb","root","");
+			
+			Statement st=con.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,ResultSet.CONCUR_UPDATABLE);
+			
+			ResultSet rs=st.executeQuery("select * from emp");
+			
+			rs.absolute(2);  // jumps to record having 2 id
+			rs.updateString("ena","PREETI");
+			rs.updateInt("eag",45);
+			rs.updateRow();
+			
+			rs.absolute(5);  // jumps to record having 2 id
+			rs.updateString("ena","vraj");
+			rs.updateRow();
+			
+			rs.absolute(1);  // jumps to record having 2 id
+			rs.updateString("ena","NISARG - MSU");
+			rs.updateRow();
+			
+			rs.first();
+			rs.previous();
+			while(rs.next())
+			{
+				int a=rs.getInt("eid");
+				String b=rs.getString("ena");
+				int c=rs.getInt("eag");
+				System.out.println(" "+a+"  , "+b+"  ,  "+c);
+			}
+			
+			
+			
+	
+			rs.close();
+			st.close();
+			con.close();
+		}
+		catch(Exception e)
+		{
+			System.out.println("\n SHOW ERROR : "+e.getMessage());
+		}		
+	}
+	
+	void prepareInsert()
+	{
+		try
+		{
+			Class.forName("com.mysql.jdbc.Driver");
+			Connection con=DriverManager.getConnection("jdbc:mysql://localhost/gtukb","root","");
+			
+			//Statement st=con.createStatement();
+			PreparedStatement pst=con.prepareStatement("insert into mytab values(?,?,?)");
+			int id=1;
+			
+			while(id!=0)
+			{
+			
+			System.out.print("\n  ENTER ID - NAME - AGE : ");
+			id=scan.nextInt();
+			String name=scan.next();
+			int age=scan.nextInt();
+			
+				if(id!=0)
+				{
+					pst.setInt(1, id);
+					pst.setString(2, name);
+					pst.setInt(3, age);
+					pst.execute();
+						//st.executeUpdate("insert into mytab value("+id+",'"+name+"',"+age+")");
+				}
+			
+			}
+			
+			
+			pst.close();
+			con.close();
+		}
+		catch(Exception e)
+		{
+			System.out.println("\n INSERT ERROR : "+e.getMessage());
+		}
+		
+		
+	}
+	
+}
+
+
+public class MyMenuData 
+{
+
+	public static void main(String[] args) 
+	{
+		Scanner scan=new Scanner(System.in);
+		int ch=0;
+		DataOperation d1=new DataOperation();
+		
+		while(ch!=7)
+		{
+			System.out.println("\n DATABASE MENU : ");
+			System.out.println(" 1. SHOW ");
+			System.out.println(" 2. INSERT ");
+			System.out.println(" 3. DELETE ");
+			System.out.println(" 4. UPDATE ");
+			System.out.println(" 5. UPDATABLE ");
+			System.out.println(" 6. PREPARED INSERT ");
+			System.out.println(" 7. EXIT ");
+			System.out.println("\n SELECT YOUR OPTION : ");
+			ch=scan.nextInt();
+			
+			switch(ch)
+			{
+			case 1 : d1.show();   break;
+			
+			case 2 : d1.insert();   break;
+			
+			case 5 : d1.updatable();  break;
+			
+			case 6 : d1.prepareInsert();  break;
+			}
+			
+			
+		}
+		
+		
+		
+		
+	
+	}
+
+}
